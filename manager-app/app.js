@@ -1,23 +1,29 @@
-// app.js — 图书收藏管理应用（第一步：添加与渲染）
+// app.js — 图书收藏管理应用（第二步：删除与搜索）
 const form = document.querySelector('#add-form');
 const titleInput = document.querySelector('#title-input');
 const authorInput = document.querySelector('#author-input');
 const ratingInput = document.querySelector('#rating-input');
 const tip = document.querySelector('#tip');
+const searchInput = document.querySelector('#search-input');
 const list = document.querySelector('#book-list');
 
 let books = [];
+let keyword = '';
 
 const render = () => {
   list.innerHTML = '';
-  if (books.length === 0) {
+  const shown = books.filter(b => {
+    if (keyword === '') return true;
+    return b.title.includes(keyword) || b.author.includes(keyword);
+  });
+  if (shown.length === 0) {
     const p = document.createElement('p');
     p.className = 'empty-tip';
-    p.textContent = '暂无图书，添加一本吧';
+    p.textContent = keyword ? '没有匹配的图书' : '暂无图书，添加一本吧';
     list.appendChild(p);
     return;
   }
-  books.forEach(book => {
+  shown.forEach(book => {
     const item = document.createElement('div');
     item.className = 'book-item';
     const info = document.createElement('div');
@@ -35,6 +41,18 @@ const render = () => {
     info.appendChild(authorSpan);
     info.appendChild(ratingSpan);
     item.appendChild(info);
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '删除';
+    delBtn.addEventListener('click', () => {
+      books = books.filter(b => b !== book);
+      render();
+    });
+    actions.appendChild(delBtn);
+    item.appendChild(actions);
+
     list.appendChild(item);
   });
 };
@@ -57,6 +75,11 @@ form.addEventListener('submit', (e) => {
   titleInput.value = '';
   authorInput.value = '';
   ratingInput.value = '';
+  render();
+});
+
+searchInput.addEventListener('input', () => {
+  keyword = searchInput.value.trim();
   render();
 });
 
