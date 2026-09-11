@@ -5,7 +5,8 @@ const tip = document.querySelector('#tip');
 const list = document.querySelector('#task-list');
 const filters = document.querySelector('.filters');
 let currentFilter = 'all'; // all / active / done
-let tasks = [];
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+const save = () => localStorage.setItem('tasks', JSON.stringify(tasks));
 
 const render = () => {
   list.innerHTML = '';
@@ -25,6 +26,7 @@ const render = () => {
     if (task.done) li.classList.add('done');
     li.addEventListener('click', () => {
       task.done = !task.done; // 切换状态：改的是数组里的对象
+      save();
       render();
     });
     const del = document.createElement('span');
@@ -33,6 +35,7 @@ const render = () => {
     del.addEventListener('click', (e) => {
       e.stopPropagation(); // 阻止冒泡，避免触发li的切换
       tasks = tasks.filter(t => t !== task);
+      save();
       render();
     });
     li.appendChild(del);
@@ -48,6 +51,7 @@ form.addEventListener('submit', (e) => {
     return;
   }
   tasks.push({ text: text, done: false });
+  save();
   tip.textContent = '';
   input.value = '';
   render();
